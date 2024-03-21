@@ -1,0 +1,22 @@
+{
+  "name": "integration-payments/payments-sdk",
+  "description": "A Composer SDK for integration payments including PayPal and Airwallex",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Casper Chan",
+      "email": "cochan717@foxmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "guzzlehttp/guzzle": "~6.0",
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "IntegrationPayments\\PaymentsSdk\\": "src/"
+    }
+  }
+}
