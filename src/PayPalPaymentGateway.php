@@ -61,6 +61,7 @@ class PayPalPaymentGateway implements PaymentGateInterface
         // save access_token
         $expiresTime = $res['expires_in'] + time();
         putenv(Constants::ENV_KEY_PAYPAL_ACCESS_TOKEN_EXPIRES_IN . '=' . $expiresTime);
+        putenv(Constants::ENV_KEY_PAYPAL_ACCESS_TOKEN . '=' . $accessToken);
         return $res['access_token'];
     }
 
