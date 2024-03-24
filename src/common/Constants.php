@@ -12,4 +12,5 @@ class Constants
 
     const ROUTE_PAYPAL_TOKEN = '/v1/oauth2/token';
     const ROUTE_PAYPAL_CHECKOUT_ORDER = '/v2/checkout/orders';
+    const ROUTE_PAYPAL_CAPTURE_ORDER = '/v2/checkout/orders/{id}/capture';
 }

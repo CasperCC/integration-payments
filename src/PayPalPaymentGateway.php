@@ -130,5 +130,25 @@ class PayPalPaymentGateway implements PaymentGateInterface
         $response = RequestUtil::send($this->domain . $route, 'GET', $data);
         return @json_decode($response, true);
     }
+
+    /**
+     * Capture PayPal Order
+     * @param string $transactionId
+     * @return array|null
+     * @throws Exception
+     */
+    public function captureOrder(string $transactionId): ?array
+    {
+        $route = str_replace('{id}', $transactionId, Constants::ROUTE_PAYPAL_CAPTURE_ORDER);
+        $accessToken = $this->accessToken ?: $this->getAccessToken();
+        $data = [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '. $accessToken,
+            ],
+        ];
+        $response = RequestUtil::send($this->domain . $route, 'POST', $data);
+        return @json_decode($response, true);
+    }
     
 }
