@@ -6,6 +6,7 @@ use Exception;
 use IntegrationPayments\PaymentsSdk\common\Constants;
 use IntegrationPayments\PaymentsSdk\PaymentGateInterface;
 use IntegrationPayments\PaymentsSdk\util\RequestUtil;
+use Ramsey\Uuid\Uuid;
 
 class AirWallexPaymentGateway implements PaymentGateInterface
 {
@@ -23,6 +24,12 @@ class AirWallexPaymentGateway implements PaymentGateInterface
         $this->accessToken = $accessToken ?: $this->getAccessToken();
     }
 
+    /**
+     * Get AccessToken by Rest Api
+     * @param bool $forceRefresh
+     * @return  array|mixed|string
+     * @throws Exception
+     */
     public function getAccessToken(bool $forceRefresh = false)
     {
         $accessToken = getenv(Constants::ENV_KEY_AIRWALLEX_ACCESS_TOKEN, true);
@@ -50,6 +57,14 @@ class AirWallexPaymentGateway implements PaymentGateInterface
         return $res['token'];
     }
 
+    /**
+     * Create Transaction
+     * @param float $amount
+     * @param string $currencyCode
+     * @param array $metadata
+     * @return  mixed
+     * @throws Exception
+     */
     public function createTransaction(float $amount, string $currencyCode = 'USD', array $metadata = [])
     {
         $accessToken = $this->accessToken ?: $this->getAccessToken();
@@ -59,15 +74,13 @@ class AirWallexPaymentGateway implements PaymentGateInterface
                 'Authorization' => 'Bearer '. $accessToken,
             ],
             'json' => [
+                'request_id'  => Uuid::uuid4()->toString(),
+                'merchant_order_id' => $metadata['order_id'] ?? Uuid::uuid4()->toString(),
                 'amount'      => $amount,
                 'currency'    => $currencyCode,
-                'reusable'    => false,
-                'title'       => $metadata['title'] ?? '',
-                'description' => $metadata['description'] ?? null,
-                'metadata'    => $metadata['metadata'] ?? null,
             ]
         ];
-        $response = RequestUtil::send($this->domain . Constants::ROUTE_AIRWALLEX_CREATE_LINK, 'POST', $data);
+        $response = RequestUtil::send($this->domain . Constants::ROUTE_AIRWALLEX_CREATE_PAYMENT_INTENTS, 'POST', $data);
         $res = @json_decode($response, true);
         if (!isset($res['id'])) {
             $errorMsg = 'debug_id: ' . $res['trace_id'] . ' details: ' . $res['message'];
@@ -76,18 +89,46 @@ class AirWallexPaymentGateway implements PaymentGateInterface
         return $res;
     }
 
+    /**
+     * Query transaction details by transaction id
+     * @param string $transactionId
+     * @return  mixed
+     * @throws Exception
+     */
     public function getTransactionDetails(string $transactionId)
     {
-        $route = Constants::ROUTE_AIRWALLEX_CHECK_ORDER . '/' . $transactionId;
+        $route = Constants::ROUTE_AIRWALLEX_RETRIEVE_PAYMENT_INTENTS . '/' . $transactionId;
         $accessToken = $this->accessToken ?: $this->getAccessToken();
         $data = [
             'headers' => [
                 'Authorization' => 'Bearer '. $accessToken,
             ],
         ];
-        echo $this->domain . $route;die;
         $response = RequestUtil::send($this->domain . $route, 'GET', $data);
-        var_dump($response);die;
         return @json_decode($response, true);
     }
+
+    /**
+     * Capture Airwallex Payment Intents
+     * @param string $transactionId
+     * @return  array|null
+     * @throws Exception
+     */
+    public function captureOrder(string $transactionId): ?array
+    {
+        $route = str_replace('{id}', $transactionId, Constants::ROUTE_AIRWALLEX_CAPTURE_PAYMENT_INTENTS);
+        $accessToken = $this->accessToken ?: $this->getAccessToken();
+        $data = [
+            'headers' => [
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer '. $accessToken,
+            ],
+            'json' => [
+                'request_id' => Uuid::uuid4()->toString(),
+            ]
+        ];
+        $response = RequestUtil::send($this->domain . $route, 'POST', $data);
+        return @json_decode($response, true);
+    }
+
 }

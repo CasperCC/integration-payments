@@ -19,6 +19,7 @@ class Constants
     const ROUTE_PAYPAL_CAPTURE_ORDER = '/v2/checkout/orders/{id}/capture';
 
     const ROUTE_AIRWALLEX_TOKEN = '/v1/authentication/login';
-    const ROUTE_AIRWALLEX_CREATE_LINK = '/v1/pa/payment_links/create';
-    const ROUTE_AIRWALLEX_CHECK_ORDER = '/v1/payments';
+    const ROUTE_AIRWALLEX_CREATE_PAYMENT_INTENTS = '/v1/pa/payment_intents/create';
+    const ROUTE_AIRWALLEX_RETRIEVE_PAYMENT_INTENTS = '/v1/pa/payment_intents';
+    const ROUTE_AIRWALLEX_CAPTURE_PAYMENT_INTENTS = '/v1/pa/payment_intents/{id}/capture';
 }

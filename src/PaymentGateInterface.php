@@ -9,4 +9,6 @@ interface PaymentGateInterface
     public function createTransaction(float $amount, string $currencyCode, array $metadata = []);
 
     public function getTransactionDetails(string $transactionId);
+
+    public function captureOrder(string $transactionId);
 }
