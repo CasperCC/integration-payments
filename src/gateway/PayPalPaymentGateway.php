@@ -1,9 +1,10 @@
 <?php
 
-namespace IntegrationPayments\PaymentsSdk;
+namespace IntegrationPayments\PaymentsSdk\gateway;
 
 use Exception;
 use IntegrationPayments\PaymentsSdk\common\Constants;
+use IntegrationPayments\PaymentsSdk\PaymentGateInterface;
 use IntegrationPayments\PaymentsSdk\util\RequestUtil;
 
 class PayPalPaymentGateway implements PaymentGateInterface
@@ -69,10 +70,11 @@ class PayPalPaymentGateway implements PaymentGateInterface
      * Create Transaction
      * @param float $amount
      * @param string $currencyCode
+     * @param array $metadata
      * @return array
      * @throws Exception
      */
-    public function createTransaction(float $amount, string $currencyCode = 'USD'): array
+    public function createTransaction(float $amount, string $currencyCode = 'USD', array $metadata = []): array
     {
         $accessToken = $this->accessToken ?: $this->getAccessToken();
         $data = [
@@ -86,7 +88,7 @@ class PayPalPaymentGateway implements PaymentGateInterface
                     [
                         'amount' => [
                             'currency_code' => $currencyCode,
-                            'value' => $amount,
+                            'value'         => $amount,
                         ],
                     ]
                 ],
@@ -94,9 +96,9 @@ class PayPalPaymentGateway implements PaymentGateInterface
                     'paypal' => [
                         'experience_context' => [
                             'payment_method_preference' => 'IMMEDIATE_PAYMENT_REQUIRED',
-                            'shipping_preference' => 'NO_SHIPPING',
-                            'brand_name' => 'Mespery',
-                            'user_action' => 'PAY_NOW',
+                            'shipping_preference'       => 'NO_SHIPPING',
+                            'brand_name'                => $metadata['brand_name'] ?? '',
+                            'user_action'               => 'PAY_NOW',
                         ],
                     ],
                 ],
@@ -123,7 +125,7 @@ class PayPalPaymentGateway implements PaymentGateInterface
         $accessToken = $this->accessToken ?: $this->getAccessToken();
         $data = [
             'headers' => [
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer '. $accessToken,
             ],
         ];
@@ -143,7 +145,7 @@ class PayPalPaymentGateway implements PaymentGateInterface
         $accessToken = $this->accessToken ?: $this->getAccessToken();
         $data = [
             'headers' => [
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer '. $accessToken,
             ],
         ];
